@@ -39,19 +39,16 @@ import label_loader
 from loader import *
 from models import EncoderRNN, DecoderRNN, Seq2seq
 
-import nsml
-from nsml import GPU_NUM, DATASET_PATH, DATASET_NAME, HAS_DATASET
-
 char2index = dict()
 index2char = dict()
 SOS_token = 0
 EOS_token = 0
 PAD_token = 0
 
-if HAS_DATASET == False:
-    DATASET_PATH = './sample_dataset'
+DATASET_PATH = './sample_dataset'
 
 DATASET_PATH = os.path.join(DATASET_PATH, 'train')
+
 
 def label_to_string(labels):
     if len(labels.shape) == 1:
@@ -173,9 +170,6 @@ def train(model, total_batch_size, queue, criterion, optimizer, device, train_be
                         elapsed, epoch_elapsed, train_elapsed))
             begin = time.time()
 
-            nsml.report(False,
-                        step=train.cumulative_batch_count, train_step__loss=total_loss/total_num,
-                        train_step__cer=total_dist/total_length)
         batch += 1
         train.cumulative_batch_count += 1
 
@@ -257,7 +251,6 @@ def bind_model(model, optimizer=None):
 
         return hyp[0]
 
-    nsml.bind(save=save, load=load, infer=infer) # 'nsml.bind' function must be called at the end.
 
 def split_dataset(config, wav_paths, script_paths, valid_ratio=0.05):
     train_loader_count = config.workers
@@ -355,9 +348,6 @@ def main():
 
     bind_model(model, optimizer)
 
-    if args.pause == 1:
-        nsml.paused(scope=locals())
-
     if args.mode != "train":
         return
 
@@ -407,16 +397,11 @@ def main():
 
         valid_loader.join()
 
-        nsml.report(False,
-            step=epoch, train_epoch__loss=train_loss, train_epoch__cer=train_cer,
-            eval__loss=eval_loss, eval__cer=eval_cer)
-
         best_model = (eval_loss < best_loss)
-        nsml.save(args.save_name)
 
         if best_model:
-            nsml.save('best')
             best_loss = eval_loss
+
 
 if __name__ == "__main__":
     main()
