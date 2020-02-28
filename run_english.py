@@ -38,7 +38,6 @@ import Levenshtein as Lev
 import label_loader
 from loader import *
 from models import EncoderRNN, DecoderRNN, Seq2seq
-from util import download_Korean_DB
 
 char2index = dict()
 index2char = dict()
@@ -48,7 +47,7 @@ PAD_token = 0
 
 DATASET_PATH = './dataset'
 
-DATASET_PATH = os.path.join(DATASET_PATH, 'train')
+DATASET_PATH = os.path.join(DATASET_PATH, 'TIMIT')
 
 
 def label_to_string(labels):
@@ -351,8 +350,6 @@ def main():
 
     if args.mode != "train":
         return
-
-    download_Korean_DB()
 
     data_list = os.path.join(DATASET_PATH, 'train_data', 'data_list.csv')
     wav_paths = list()
