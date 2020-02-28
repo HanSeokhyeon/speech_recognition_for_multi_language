@@ -171,11 +171,11 @@ CRR = (1.0 - CER) * 100.0
 2. main.py에 데이터셋 경로 지정하기
   ```python
   #
-  # ./main.py
+  run_korean.py
   # 
   
   if HAS_DATASET == False:
-    DATASET_PATH = './sample_dataset' # 이 값을 데이터셋 다운로드 경로로 변경
+    DATASET_PATH = dataset # 이 값을 데이터셋 다운로드 경로로 변경
   ```
   
 3. Training

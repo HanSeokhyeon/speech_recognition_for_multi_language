@@ -45,7 +45,7 @@ SOS_token = 0
 EOS_token = 0
 PAD_token = 0
 
-DATASET_PATH = './sample_dataset'
+DATASET_PATH = './dataset'
 
 DATASET_PATH = os.path.join(DATASET_PATH, 'train')
 
