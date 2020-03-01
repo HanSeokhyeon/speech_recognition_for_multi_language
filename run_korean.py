@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import sys
@@ -32,8 +32,7 @@ import logging
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-import torch.optim as optim
-import Levenshtein as Lev 
+import Levenshtein as Lev
 
 import label_loader
 from loader import *
@@ -72,6 +71,7 @@ def label_to_string(labels):
 
         return sents
 
+
 def char_distance(ref, hyp):
     ref = ref.replace(' ', '') 
     hyp = hyp.replace(' ', '') 
@@ -80,6 +80,7 @@ def char_distance(ref, hyp):
     length = len(ref.replace(' ', ''))
 
     return dist, length 
+
 
 def get_distance(ref_labels, hyp_labels, display=False):
     total_dist = 0
@@ -96,7 +97,8 @@ def get_distance(ref_labels, hyp_labels, display=False):
     return total_dist, total_length
 
 
-def train(model, total_batch_size, queue, criterion, optimizer, device, train_begin, train_loader_count, print_batch=5, teacher_forcing_ratio=1):
+def train(model, total_batch_size, queue, criterion, optimizer,
+          device, train_begin, train_loader_count, print_batch=5, teacher_forcing_ratio=1):
     total_loss = 0.
     total_num = 0
     total_dist = 0
@@ -222,6 +224,7 @@ def evaluate(model, dataloader, queue, criterion, device):
     logger.info('evaluate() completed')
     return total_loss / total_num, total_dist / total_length
 
+
 def bind_model(model, optimizer=None):
     def load(filename, **kwargs):
         state = torch.load(os.path.join(filename, 'model.pt'))
@@ -284,8 +287,8 @@ def split_dataset(config, wav_paths, script_paths, valid_ratio=0.05):
 
     return train_batch_num, train_dataset_list, valid_dataset
 
-def main():
 
+def main():
     global char2index
     global index2char
     global SOS_token
