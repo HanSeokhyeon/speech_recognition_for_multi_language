@@ -266,35 +266,31 @@ def split_dataset(config, train_paths, valid_paths, test_paths):
     valid_label_paths = list(map(lambda x: "dataset/TIMIT/{}.PHN".format(x), valid_paths))
     test_label_paths = list(map(lambda x: "dataset/TIMIT/{}.PHN".format(x), test_paths))
 
-    train_loader_count = config.workers
-    records_num = len(train_wav_paths)
-    batch_num = math.ceil(records_num / config.batch_size)
-
-    valid_batch_num = math.ceil(batch_num * valid_ratio)
-    train_batch_num = batch_num - valid_batch_num
+    train_batch_num = math.ceil(len(train_wav_paths) / config.batch_size)
 
     batch_num_per_train_loader = math.ceil(train_batch_num / config.workers)
 
     train_begin = 0
-    train_end_raw_id = 0
     train_dataset_list = list()
 
-    for i in range(config.workers):
-
+    for i in range(config.workers - 1):
         train_end = min(train_begin + batch_num_per_train_loader, train_batch_num)
 
         train_begin_raw_id = train_begin * config.batch_size
         train_end_raw_id = train_end * config.batch_size
 
-        train_dataset_list.append(BaseDataset(
-                                        wav_paths[train_begin_raw_id:train_end_raw_id],
-                                        script_paths[train_begin_raw_id:train_end_raw_id],
-                                        SOS_token, EOS_token))
+        train_dataset_list.append(BaseDataset(train_wav_paths[train_begin_raw_id:train_end_raw_id],
+                                              train_label_paths[train_begin_raw_id:train_end_raw_id]))
+
         train_begin = train_end
 
-    valid_dataset = BaseDataset(wav_paths[train_end_raw_id:], script_paths[train_end_raw_id:], SOS_token, EOS_token)
+    train_dataset_list.append(BaseDataset(train_wav_paths[train_begin * config.batch_size:],
+                                          train_label_paths[train_begin * config.batch_size:]))
 
-    return train_batch_num, train_dataset_list, valid_dataset
+    valid_dataset = BaseDataset(valid_wav_paths, valid_label_paths)
+    test_dataset = BaseDataset(test_wav_paths, test_label_paths)
+
+    return train_batch_num, train_dataset_list, valid_dataset, test_dataset
 
 
 def main():
