@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import os
 import sys
@@ -32,8 +32,8 @@ import logging
 import torch.nn as nn
 import torch.optim as optim
 import torch.nn.functional as F
-import torch.optim as optim
-import Levenshtein as Lev 
+import Levenshtein as Lev
+import numpy as np
 
 import label_loader
 from loader import *
@@ -48,7 +48,7 @@ PAD_token = 0
 
 DATASET_PATH = './dataset'
 
-DATASET_PATH = os.path.join(DATASET_PATH, 'TIMIT')
+DATASET_PATH = os.path.join(DATASET_PATH, 'train')
 
 
 def label_to_string(labels):
@@ -72,14 +72,16 @@ def label_to_string(labels):
 
         return sents
 
+
 def char_distance(ref, hyp):
-    ref = ref.replace(' ', '') 
-    hyp = hyp.replace(' ', '') 
+    ref = ref.replace(' ', '')
+    hyp = hyp.replace(' ', '')
 
     dist = Lev.distance(hyp, ref)
     length = len(ref.replace(' ', ''))
 
-    return dist, length 
+    return dist, length
+
 
 def get_distance(ref_labels, hyp_labels, display=False):
     total_dist = 0
@@ -89,14 +91,15 @@ def get_distance(ref_labels, hyp_labels, display=False):
         hyp = label_to_string(hyp_labels[i])
         dist, length = char_distance(ref, hyp)
         total_dist += dist
-        total_length += length 
+        total_length += length
         if display:
             cer = total_dist / total_length
             logger.debug('%d (%0.4f)\n(%s)\n(%s)' % (i, cer, ref, hyp))
     return total_dist, total_length
 
 
-def train(model, total_batch_size, queue, criterion, optimizer, device, train_begin, train_loader_count, print_batch=5, teacher_forcing_ratio=1):
+def train(model, total_batch_size, queue, criterion, optimizer,
+          device, train_begin, train_loader_count, print_batch=5, teacher_forcing_ratio=1):
     total_loss = 0.
     total_num = 0
     total_dist = 0
@@ -222,6 +225,7 @@ def evaluate(model, dataloader, queue, criterion, device):
     logger.info('evaluate() completed')
     return total_loss / total_num, total_dist / total_length
 
+
 def bind_model(model, optimizer=None):
     def load(filename, **kwargs):
         state = torch.load(os.path.join(filename, 'model.pt'))
@@ -253,9 +257,17 @@ def bind_model(model, optimizer=None):
         return hyp[0]
 
 
-def split_dataset(config, wav_paths, script_paths, valid_ratio=0.05):
+def split_dataset(config, train_paths, valid_paths, test_paths):
+    train_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.WAV".format(x), train_paths))
+    valid_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.WAV".format(x), valid_paths))
+    test_wav_paths = list(map(lambda x: "dataset/TIMIT/{}.WAV".format(x), test_paths))
+
+    train_label_paths = list(map(lambda x: "dataset/TIMIT/{}.PHN".format(x), train_paths))
+    valid_label_paths = list(map(lambda x: "dataset/TIMIT/{}.PHN".format(x), valid_paths))
+    test_label_paths = list(map(lambda x: "dataset/TIMIT/{}.PHN".format(x), test_paths))
+
     train_loader_count = config.workers
-    records_num = len(wav_paths)
+    records_num = len(train_wav_paths)
     batch_num = math.ceil(records_num / config.batch_size)
 
     valid_batch_num = math.ceil(batch_num * valid_ratio)
@@ -278,21 +290,21 @@ def split_dataset(config, wav_paths, script_paths, valid_ratio=0.05):
                                         wav_paths[train_begin_raw_id:train_end_raw_id],
                                         script_paths[train_begin_raw_id:train_end_raw_id],
                                         SOS_token, EOS_token))
-        train_begin = train_end 
+        train_begin = train_end
 
     valid_dataset = BaseDataset(wav_paths[train_end_raw_id:], script_paths[train_end_raw_id:], SOS_token, EOS_token)
 
     return train_batch_num, train_dataset_list, valid_dataset
 
-def main():
 
+def main():
     global char2index
     global index2char
     global SOS_token
     global EOS_token
     global PAD_token
 
-    parser = argparse.ArgumentParser(description='Speech hackathon Baseline')
+    parser = argparse.ArgumentParser(description='english')
     parser.add_argument('--hidden_size', type=int, default=512, help='hidden size of model (default: 256)')
     parser.add_argument('--layer_size', type=int, default=3, help='number of layers of model (default: 3)')
     parser.add_argument('--dropout', type=float, default=0.2, help='dropout rate in training (default: 0.2)')
@@ -351,17 +363,9 @@ def main():
 
     download_TIMIT()
 
-    data_list = os.path.join(DATASET_PATH, 'train_data', 'data_list.csv')
-    wav_paths = list()
-    script_paths = list()
-
-    with open(data_list, 'r') as f:
-        for line in f:
-            # line: "aaa.wav,aaa.label"
-
-            wav_path, script_path = line.strip().split(',')
-            wav_paths.append(os.path.join(DATASET_PATH, 'train_data', wav_path))
-            script_paths.append(os.path.join(DATASET_PATH, 'train_data', script_path))
+    train_paths = np.loadtxt("dataset/TRAIN_list.csv", delimiter=',', dtype=np.unicode)
+    valid_paths = np.loadtxt("dataset/TEST_developmentset_list.csv", delimiter=',', dtype=np.unicode)
+    test_paths = np.loadtxt("dataset/TEST_coreset_list.csv", delimiter=',', dtype=np.unicode)
 
     best_loss = 1e10
     begin_epoch = 0
@@ -370,7 +374,7 @@ def main():
     target_path = os.path.join(DATASET_PATH, 'train_label')
     load_targets(target_path)
 
-    train_batch_num, train_dataset_list, valid_dataset = split_dataset(args, wav_paths, script_paths, valid_ratio=0.05)
+    train_batch_num, train_dataset_list, valid_dataset, test_dataset = split_dataset(args, train_paths, valid_paths, test_paths)
 
     logger.info('start')
 
