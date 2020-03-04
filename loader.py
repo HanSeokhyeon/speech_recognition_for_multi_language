@@ -26,6 +26,7 @@ import random
 import threading
 import logging
 import numpy as np
+import json
 from torch.utils.data import Dataset, DataLoader
 
 logger = logging.getLogger('root')
@@ -73,15 +74,16 @@ def get_spectrogram_feature(filepath):
 
 
 def get_script(filepath, bos_id, eos_id):
-    key = filepath.split('/')[-1].split('.')[0]
-    script = target_dict[key]
-    tokens = script.split(' ')
-    result = list()
-    result.append(bos_id)
-    for i in range(len(tokens)):
-        if len(tokens[i]) > 0:
-            result.append(int(tokens[i]))
-    result.append(eos_id)
+    if filepath[-3:] == 'PHN':
+        script = np.loadtxt(filepath, dtype=np.str, delimiter=' ')[:, 2]
+
+        pass
+
+    else:
+        key = filepath.split('/')[-1].split('.')[0]
+        script = target_dict[key]
+        tokens = script.split(' ')
+        result = [bos_id] + [token for token in list(map(int, tokens)) if token > 0] + [eos_id]
     return result
 
 
