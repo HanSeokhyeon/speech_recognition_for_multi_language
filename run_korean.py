@@ -296,7 +296,7 @@ def main():
     global PAD_token
 
     parser = argparse.ArgumentParser(description='speech recognition for multi language')
-    parser.add_argument('--language', type=str, default='english', help='target language')
+    parser.add_argument('--language', type=str, default='korean', help='target language')
     parser.add_argument('--hidden_size', type=int, default=512, help='hidden size of model (default: 256)')
     parser.add_argument('--layer_size', type=int, default=3, help='number of layers of model (default: 3)')
     parser.add_argument('--dropout', type=float, default=0.2, help='dropout rate in training (default: 0.2)')

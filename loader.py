@@ -39,6 +39,8 @@ N_FFT = 512
 SAMPLE_RATE = 16000
 
 target_dict = dict()
+with open("english.json", 'r') as f:
+    phn2label = json.load(f)
 
 
 def load_targets(path):
@@ -74,16 +76,18 @@ def get_spectrogram_feature(filepath):
 
 
 def get_script(filepath, bos_id, eos_id):
+    # English
     if filepath[-3:] == 'PHN':
         script = np.loadtxt(filepath, dtype=np.str, delimiter=' ')[:, 2]
+        result = [bos_id] + [phn2label[token]+1 for token in script] + [eos_id]
 
-        pass
-
+    # Korean
     else:
         key = filepath.split('/')[-1].split('.')[0]
         script = target_dict[key]
         tokens = script.split(' ')
         result = [bos_id] + [token for token in list(map(int, tokens)) if token > 0] + [eos_id]
+
     return result
 
 
