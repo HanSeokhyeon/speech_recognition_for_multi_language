@@ -309,7 +309,7 @@ def main():
     parser.add_argument('--use_attention', action='store_true', help='use attention between encoder-decoder (default: False)')
     parser.add_argument('--batch_size', type=int, default=32, help='batch size in training (default: 32)')
     parser.add_argument('--workers', type=int, default=4, help='number of workers in dataset loader (default: 4)')
-    parser.add_argument('--max_epochs', type=int, default=10, help='number of max epochs in training (default: 10)')
+    parser.add_argument('--max_epochs', type=int, default=100, help='number of max epochs in training (default: 10)')
     parser.add_argument('--lr', type=float, default=1e-04, help='learning rate (default: 0.0001)')
     parser.add_argument('--teacher_forcing', type=float, default=0.5, help='teacher forcing ratio in decoder (default: 0.5)')
     parser.add_argument('--max_len', type=int, default=80, help='maximum characters of sentence (default: 80)')

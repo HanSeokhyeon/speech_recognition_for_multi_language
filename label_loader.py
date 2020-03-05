@@ -18,8 +18,8 @@ limitations under the License.
 
 
 def load_label(label_path):
-    char2index = dict() # [ch] = id
-    index2char = dict() # [id] = ch
+    char2index = dict()  # [ch] = id
+    index2char = dict()  # [id] = ch
     with open(label_path, 'r') as f:
         for no, line in enumerate(f):
             if line[0] == '#': 
