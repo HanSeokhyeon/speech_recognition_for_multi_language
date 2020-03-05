@@ -280,15 +280,17 @@ def split_dataset(config, train_paths, valid_paths, test_paths):
         train_end_raw_id = train_end * config.batch_size
 
         train_dataset_list.append(BaseDataset(train_wav_paths[train_begin_raw_id:train_end_raw_id],
-                                              train_label_paths[train_begin_raw_id:train_end_raw_id]))
+                                              train_label_paths[train_begin_raw_id:train_end_raw_id],
+                                              SOS_token, EOS_token))
 
         train_begin = train_end
 
     train_dataset_list.append(BaseDataset(train_wav_paths[train_begin * config.batch_size:],
-                                          train_label_paths[train_begin * config.batch_size:]))
+                                          train_label_paths[train_begin * config.batch_size:],
+                                          SOS_token, EOS_token))
 
-    valid_dataset = BaseDataset(valid_wav_paths, valid_label_paths)
-    test_dataset = BaseDataset(test_wav_paths, test_label_paths)
+    valid_dataset = BaseDataset(valid_wav_paths, valid_label_paths, SOS_token, EOS_token)
+    test_dataset = BaseDataset(test_wav_paths, test_label_paths, SOS_token, EOS_token)
 
     return train_batch_num, train_dataset_list, valid_dataset, test_dataset
 
