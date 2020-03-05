@@ -15,22 +15,29 @@ limitations under the License.
 """
 
 #-*- coding: utf-8 -*-
+import json
 
 
-def load_label(label_path):
-    char2index = dict()  # [ch] = id
-    index2char = dict()  # [id] = ch
+def load_label(label_path, language):
     with open(label_path, 'r') as f:
-        for no, line in enumerate(f):
-            if line[0] == '#': 
-                continue
+        if language == 'korean':
+            char2index = dict()  # [ch] = id
+            index2char = dict()  # [id] = ch
 
-            index, char, freq = line.strip().split('\t')
-            char = char.strip()
-            if len(char) == 0:
-                char = ' '
+            for no, line in enumerate(f):
+                if line[0] == '#':
+                    continue
 
-            char2index[char] = int(index)
-            index2char[int(index)] = char
+                index, char, freq = line.strip().split('\t')
+                char = char.strip()
+                if len(char) == 0:
+                    char = ' '
+
+                char2index[char] = int(index)
+                index2char[int(index)] = char
+        else:
+            char2index63 = json.load(f)
+            index2char = {char2index63[key]: key for key in char2index63}
+            char2index = {index2char[key]: key for key in index2char}
 
     return char2index, index2char

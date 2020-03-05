@@ -321,7 +321,10 @@ def main():
 
     args = parser.parse_args()
 
-    char2index, index2char = label_loader.load_label('./korean.labels')
+    if args.language == 'korean':
+        char2index, index2char = label_loader.load_label('korean.labels', args.language)
+    else:
+        char2index, index2char = label_loader.load_label('english.json', args.language)
     SOS_token = char2index['<s>']
     EOS_token = char2index['</s>']
     PAD_token = char2index['_']
@@ -340,7 +343,7 @@ def main():
                      input_dropout_p=args.dropout, dropout_p=args.dropout,
                      n_layers=args.layer_size, bidirectional=args.bidirectional, rnn_cell='gru', variable_lengths=False)
 
-    dec = DecoderRNN(41, args.max_len, args.hidden_size * (2 if args.bidirectional else 1),
+    dec = DecoderRNN(len(char2index), args.max_len, args.hidden_size * (2 if args.bidirectional else 1),
                      SOS_token, EOS_token,
                      n_layers=args.layer_size, rnn_cell='gru', bidirectional=args.bidirectional,
                      input_dropout_p=args.dropout, dropout_p=args.dropout, use_attention=args.use_attention)

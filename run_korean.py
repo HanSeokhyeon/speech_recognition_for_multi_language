@@ -317,9 +317,9 @@ def main():
     args = parser.parse_args()
 
     if args.language == 'korean':
-        char2index, index2char = label_loader.load_label('./korean.labels')
+        char2index, index2char = label_loader.load_label('korean.labels', args.language)
     else:
-        char2index, index2char =
+        char2index, index2char = label_loader.load_label('english.json', args.language)
     SOS_token = char2index['<s>']
     EOS_token = char2index['</s>']
     PAD_token = char2index['_']

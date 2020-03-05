@@ -79,7 +79,7 @@ def get_script(filepath, bos_id, eos_id):
     # English
     if filepath[-3:] == 'PHN':
         script = np.loadtxt(filepath, dtype=np.str, delimiter=' ')[:, 2]
-        result = [0] + [phn2label[token]+1 for token in script] + [40]
+        result = [40] + [phn2label[token] for token in script] + [41]
 
     # Korean
     else:
