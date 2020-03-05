@@ -16,6 +16,7 @@ limitations under the License.
 
 #-*- coding: utf-8 -*-
 
+
 def load_label(label_path):
     char2index = dict() # [ch] = id
     index2char = dict() # [id] = ch
