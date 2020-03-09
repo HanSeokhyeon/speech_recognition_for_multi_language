@@ -297,7 +297,7 @@ def main():
 
     parser = argparse.ArgumentParser(description='speech recognition for multi language')
     parser.add_argument('--language', type=str, default='korean', help='target language')
-    parser.add_argument('--hidden_size', type=int, default=512, help='hidden size of model (default: 256)')
+    parser.add_argument('--hidden_size', type=int, default=256, help='hidden size of model (default: 256)')
     parser.add_argument('--layer_size', type=int, default=3, help='number of layers of model (default: 3)')
     parser.add_argument('--dropout', type=float, default=0.2, help='dropout rate in training (default: 0.2)')
     parser.add_argument('--bidirectional', action='store_true', help='use bidirectional RNN for encoder (default: False)')
@@ -377,7 +377,7 @@ def main():
     target_path = os.path.join(DATASET_PATH, 'train_label')
     load_targets(target_path)
 
-    train_batch_num, train_dataset_list, valid_dataset = split_dataset(args, wav_paths, script_paths, valid_ratio=0.05)
+    train_batch_num, train_dataset_list, valid_dataset = split_dataset(args, wav_paths[:4000], script_paths[:4000], valid_ratio=0.1)
 
     logger.info('start')
 
